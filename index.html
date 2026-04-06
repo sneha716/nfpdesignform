@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Request — Network FP</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #ff5000;
+    --orange-light: #ff6a20;
+    --orange-dim: rgba(255,80,0,0.07);
+    --beige: #fff8f5;
+    --beige-input: #fff3ee;
+    --white: #ffffff;
+    --grey-dark: #333333;
+    --grey-mid: #666666;
+    --grey-light: #999999;
+    --border: #e8ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--beige);
+    color: var(--grey-dark);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 100% 0%, rgba(255,80,0,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 35% 40% at 0% 100%, rgba(255,80,0,0.04) 0%, transparent 55%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* HEADER */
+  .header { margin-bottom: 36px; animation: fadeUp 0.5s ease both; }
+
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+  }
+
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .brand-dot {
+    width: 28px; height: 28px; background: var(--orange);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  }
+  .brand-name { font-size: 14px; font-weight: 600; color: var(--grey-dark); }
+
+  .queue-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 13px;
+    font-size: 12px; font-weight: 500; color: var(--grey-mid);
+    text-decoration: none; transition: all 0.15s; white-space: nowrap;
+  }
+  .queue-link:hover { border-color: var(--orange); color: var(--orange); }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    line-height: 1.2; color: var(--grey-dark); margin-bottom: 6px;
+  }
+  h1 em { font-style: italic; color: var(--orange); }
+  .subtitle { font-size: 14px; color: var(--grey-mid); line-height: 1.5; }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px;
+    box-shadow: 0 4px 24px rgba(255,80,0,0.05);
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  @media (max-width: 500px) { .form-card { padding: 24px 18px; } }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--grey-light);
+    margin-bottom: 20px;
+  }
+
+  .section-sep {
+    border: none; border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  /* FIELDS */
+  .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  @media (max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
+
+  label {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--orange);
+  }
+  label .req { color: var(--grey-light); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; margin-left: 3px; }
+  label .opt { color: var(--grey-light); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; margin-left: 3px; }
+
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea {
+    background: var(--beige-input); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    color: var(--grey-dark); outline: none; width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input::placeholder, textarea::placeholder { color: var(--grey-light); }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--orange); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(255,80,0,0.08);
+  }
+  .error-border { border-color: #e03333 !important; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ff5000' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 40px; cursor: pointer;
+  }
+  select option { background: white; color: var(--grey-dark); }
+  select option[disabled] { color: var(--grey-light); }
+  select:invalid, select option[value=""] { color: var(--grey-light); }
+
+  /* Size select - show placeholder in grey until selected */
+  #size:not(:focus):has(option[value=""]:checked) { color: var(--grey-light); }
+  textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+  .field-hint { font-size: 12px; color: var(--grey-light); margin-top: 2px; }
+
+  .date-input-wrap {
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--beige-input); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 48px;
+  }
+  .date-input-wrap:hover { border-color: var(--orange); }
+  .date-input-wrap:focus-within { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,80,0,0.08); }
+  .date-display { font-size: 15px; color: var(--grey-light); flex: 1; }
+  .date-display.has-value { color: var(--grey-dark); }
+
+  /* DESIGN TYPE — radio list */
+  .radio-list {
+    display: flex; flex-direction: column;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .radio-item { display: none; }
+
+  .radio-item + label {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--grey-mid);
+    cursor: pointer; transition: background 0.15s;
+    background: var(--beige-input);
+    text-transform: none; letter-spacing: 0; font-weight: 400;
+  }
+
+  .radio-item + label:last-of-type { border-bottom: none; }
+
+  .radio-item + label:hover { background: var(--orange-dim); color: var(--grey-dark); }
+
+  .radio-item:checked + label {
+    background: var(--orange-dim);
+    color: var(--orange); font-weight: 600;
+  }
+
+  .radio-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--border); flex-shrink: 0;
+    transition: all 0.15s; background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .radio-item:checked + label .radio-dot {
+    border-color: var(--orange); background: var(--orange);
+  }
+
+  .radio-item:checked + label .radio-dot::after {
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%; background: white;
+    display: block;
+  }
+
+  .radio-list.error-group { outline: 2px solid #e03333; border-radius: 12px; }
+
+  .radio-item + label { justify-content: space-between; }
+  .radio-label-main { flex: 1; }
+  .radio-label-size {
+    font-size: 12px; color: var(--grey-light); font-weight: 400;
+    background: #f5ede8; border-radius: 6px; padding: 2px 8px;
+    white-space: nowrap; margin-left: 8px;
+  }
+  .radio-item:checked + label .radio-label-size { background: rgba(255,80,0,0.12); color: var(--orange); }
+
+
+
+  /* SUBMIT */
+  .submit-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 32px; gap: 16px; flex-wrap: wrap;
+  }
+  .submit-note { font-size: 13px; color: var(--grey-light); line-height: 1.5; }
+
+  .btn-submit {
+    background: var(--orange); color: white; border: none;
+    border-radius: 12px; padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-submit:hover { background: var(--orange-light); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,80,0,0.25); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* SUCCESS */
+  .success-screen { display: none; text-align: center; padding: 56px 24px; animation: fadeUp 0.4s ease both; }
+  .success-icon {
+    width: 60px; height: 60px; background: rgba(34,197,94,0.1);
+    border: 2px solid #22c55e; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+  }
+  .success-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--grey-dark); margin-bottom: 8px; }
+  .success-msg { font-size: 14px; color: var(--grey-mid); line-height: 1.6; max-width: 340px; margin: 0 auto 24px; }
+  .success-btns { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+  .btn-dashboard {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--orange); color: white; text-decoration: none;
+    border-radius: 12px; padding: 13px 28px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-dashboard:hover { background: var(--orange-light); }
+
+  .btn-reset {
+    background: transparent; color: var(--grey-mid); border: none;
+    padding: 8px 16px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; cursor: pointer; transition: color 0.15s;
+  }
+  .btn-reset:hover { color: var(--orange); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-dot">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1.5" fill="white"/>
+            <rect x="8" y="1" width="5" height="5" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="1" y="8" width="5" height="5" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="8" y="8" width="5" height="5" rx="1.5" fill="white" opacity="0.4"/>
+          </svg>
+        </div>
+        <span class="brand-name">Network FP</span>
+      </div>
+      <a href="https://nfp-design-dashboard-2026.netlify.app/" target="_blank" class="queue-link">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect x="1" y="1" width="4" height="4" rx="1" fill="currentColor" opacity="0.8"/>
+          <rect x="7" y="1" width="4" height="4" rx="1" fill="currentColor" opacity="0.5"/>
+          <rect x="1" y="7" width="4" height="4" rx="1" fill="currentColor" opacity="0.5"/>
+          <rect x="7" y="7" width="4" height="4" rx="1" fill="currentColor" opacity="0.3"/>
+        </svg>
+        View Queue
+      </a>
+    </div>
+    <h1>Design <em>Request</em> Form</h1>
+    <p class="subtitle">Fill this out and the design team will pick it up within 1 working day.</p>
+  </div>
+
+  <div class="form-card">
+    <form id="designForm" novalidate>
+
+      <!-- 01 About You -->
+      <p class="section-label">01 — About You</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Your Name <span class="req">*</span></label>
+          <input type="text" id="name" placeholder="e.g. Priya Sharma" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="dept">Department <span class="req">*</span></label>
+          <select id="dept">
+            <option value="" disabled selected>Select department</option>
+            <option>ProMembership</option>
+            <option>QPFP</option>
+            <option>Tech</option>
+            <option>Marketing</option>
+            <option>Sales</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- 02 Design Details -->
+      <p class="section-label">02 — Design Details</p>
+
+      <div class="field">
+        <label for="assignTo">Assign to <span class="req">*</span></label>
+        <select id="assignTo" required>
+          <option value="" disabled selected>Select design team</option>
+          <option value="VRD">VRD</option>
+          <option value="Doodlespace">Doodlespace</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Design Type <span class="req">*</span></label>
+        <div class="radio-list" id="designTypeGroup">
+          <input class="radio-item" type="radio" name="design_type" id="dt1" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="SM Promo Image — 1080 × 1080">
+          <label for="dt1">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">SM Promo Image</span>
+            <span class="radio-label-size">1080 × 1080</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt2" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="SM Story / Mobile — 1080 × 1920">
+          <label for="dt2">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">SM Story / Mobile</span>
+            <span class="radio-label-size">1080 × 1920</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt3" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="Platform Thumbnail — 1024 × 683">
+          <label for="dt3">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">Platform Thumbnail</span>
+            <span class="radio-label-size">1024 × 683</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt4" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="YT Thumbnail — 1920 × 1080">
+          <label for="dt4">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">YT Thumbnail</span>
+            <span class="radio-label-size">1920 × 1080</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt5" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="Email Header — 600 × 200">
+          <label for="dt5">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">Email Header</span>
+            <span class="radio-label-size">600 × 200</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt6" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="PPT Deck — 16:9">
+          <label for="dt6">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">PPT Deck</span>
+            <span class="radio-label-size">16:9</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt7" onchange="document.getElementById('otherTypeField').style.display='none'; document.getElementById('otherType').value='';" value="Brochure — A4 Portrait">
+          <label for="dt7">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">Brochure</span>
+            <span class="radio-label-size">A4 Portrait</span>
+          </label>
+
+          <input class="radio-item" type="radio" name="design_type" id="dt9" value="Other" onchange="document.getElementById('otherTypeField').style.display='block'; document.getElementById('otherType').focus();">
+          <label for="dt9">
+            <span class="radio-dot"></span>
+            <span class="radio-label-main">Other</span>
+            <span class="radio-label-size">Specify below</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" id="otherTypeField" style="display:none; margin-top:4px;">
+        <label for="otherType">Specify design type and size</label>
+        <textarea id="otherType" placeholder="e.g. Certificate — A4 Landscape, or LinkedIn banner — 1584 × 396…" style="min-height:100px; resize:vertical;"></textarea>
+      </div>
+
+      <div class="field">
+          <label for="deadline" style="cursor:pointer">Deadline <span class="req">*</span></label>
+          <div class="date-input-wrap" onclick="document.getElementById('deadline').showPicker ? document.getElementById('deadline').showPicker() : document.getElementById('deadline').click()">
+            <input type="date" id="deadline" min="" style="cursor:pointer; position:absolute; inset:0; opacity:0; width:100%; height:100%; z-index:2;">
+            <span class="date-display" id="dateDisplay">Select a date</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0; color:var(--orange)">
+              <rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M6 1v4M12 1v4M2 7h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+      <hr class="section-sep">
+
+      <!-- 03 Content Brief -->
+      <p class="section-label">03 — Content Brief</p>
+
+      <div class="field">
+        <label for="content">Content Details <span class="req">*</span></label>
+        <textarea id="content" placeholder="Mention every detail — logo variant, headline, byline, body copy, CTA button text, colour references, image notes and anything else the designer needs to know."></textarea>
+        <span class="field-hint">Be specific — this helps the designer start without back-and-forth.</span>
+      </div>
+
+      <div class="field">
+        <label for="reference">Reference or Inspiration <span class="opt">optional</span></label>
+        <input type="text" id="reference" placeholder="Paste a link, Canva file, or describe the look & feel">
+      </div>
+
+      <div class="submit-row">
+        <p class="submit-note">The design team will confirm<br>receipt within 1 working day.</p>
+        <button type="submit" class="btn-submit" id="submitBtn">Submit Request →</button>
+      </div>
+
+    </form>
+
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M7 14l5 5 9-9" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="success-title">Request sent! 🎉</h2>
+      <p class="success-msg" id="successMsg">Your request has been received. The team will confirm by EOD.</p>
+      <div class="success-btns">
+        <a href="https://nfp-design-dashboard-2026.netlify.app/" target="_blank" class="btn-dashboard">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1.5" fill="white"/>
+            <rect x="9" y="1" width="5" height="5" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="1" y="9" width="5" height="5" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="9" y="9" width="5" height="5" rx="1.5" fill="white" opacity="0.4"/>
+          </svg>
+          Track your request
+        </a>
+        <button class="btn-reset" onclick="resetForm()">Submit another request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  emailjs.init('1HMbUuS0HAgttfV3A');
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Set min date on the hidden input
+  const deadlineInput = document.getElementById('deadline');
+  deadlineInput.min = today;
+
+  // Update display when date changes
+  deadlineInput.addEventListener('change', function() {
+    if (this.value && this.value < today) {
+      this.value = today;
+    }
+    const display = document.getElementById('dateDisplay');
+    if (display) {
+      if (this.value) {
+        const d = new Date(this.value + 'T00:00:00');
+        display.textContent = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        display.classList.add('has-value');
+      } else {
+        display.textContent = 'Select a date';
+        display.classList.remove('has-value');
+      }
+    }
+  });
+
+  // Other field shown via inline onchange on radio inputs
+
+  document.getElementById('designForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const name       = document.getElementById('name').value.trim();
+    const dept       = document.getElementById('dept').value;
+    const assignTo   = document.getElementById('assignTo').value;
+    const deadline   = document.getElementById('deadline').value;
+    const content    = document.getElementById('content').value.trim();
+    const typeEl     = document.querySelector('.radio-item:checked');
+    const otherType  = document.getElementById('otherType').value.trim();
+    const reference  = document.getElementById('reference').value.trim() || 'None provided';
+    const designTypes = typeEl ? (typeEl.value === 'Other' ? (otherType || 'Other') : typeEl.value) : '';
+
+    let valid = true;
+
+    function flag(el) {
+      if (!el) return;
+      el.classList.add('error-border');
+      el.addEventListener('input',  () => el.classList.remove('error-border'), { once: true });
+      el.addEventListener('change', () => el.classList.remove('error-border'), { once: true });
+      valid = false;
+    }
+
+    if (!name)     flag(document.getElementById('name'));
+    if (!dept)     flag(document.getElementById('dept'));
+    if (!assignTo) flag(document.getElementById('assignTo'));
+    if (!deadline) { flag(deadlineInput); valid = false; }
+    if (deadline && deadline < today) { flag(deadlineInput); valid = false; }
+    if (!content)  flag(document.getElementById('content'));
+    if (!designTypes) {
+      const g = document.getElementById('designTypeGroup');
+      g.classList.add('error-group');
+      setTimeout(() => g.classList.remove('error-group'), 2000);
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Sending…'; btn.disabled = true;
+
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbydJm5_FXtkRv6bpdtfDJJaSciOWdNt_wWLOQ-y0snKHVPzNAuHY-45abP6MyokIokT/exec';
+    const deadlineTs = deadline ? new Date(deadline).getTime() : null;
+    const listId = assignTo === 'VRD' ? '901612361662' : '901612614956';
+    const taskName = assignTo === 'VRD' ? `${designTypes} — ${dept}` : `[DS] ${designTypes} — ${dept}`;
+    const description = `FROM: ${name}\nDEPARTMENT: ${dept}\n\nDESIGN TYPE: ${designTypes}\nDEADLINE: ${deadline}\nASSIGNED TO: ${assignTo}\n\nCONTENT BRIEF:\n${content}\n\nREFERENCE:\n${reference}`;
+
+    const templateParams = {
+      from_name:   name,
+      department:  dept,
+      design_type: designTypes,
+      deadline:    deadline,
+      priority:    assignTo,
+      content:     content,
+      reference:   reference
+    };
+
+    try {
+      // 1. Send email
+      await emailjs.send('service_4nnzsxv', 'template_lx11xj4', templateParams);
+
+      // 2. Log to Google Sheet (fire and forget)
+      fetch(sheetUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ from_name: name, department: dept, design_type: designTypes, deadline, priority: 'Normal', content, reference, assigned_to: assignTo })
+      }).catch(() => {});
+
+      // 3. Create ClickUp task
+      await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'pk_55437099_KB95FGPP3R2SK0GZKBGWZVEQV0W07Y5L' },
+        body: JSON.stringify({
+          name: taskName,
+          description: description,
+          priority: 3,
+          due_date: deadlineTs,
+          due_date_time: false,
+          notify_all: true,
+          tags: assignTo === 'Doodlespace' ? ['doodlespace'] : []
+        })
+      });
+
+      // 4. Show success
+      document.getElementById('successMsg').textContent =
+        `Hey ${name}! Your ${designTypes} request has been sent to ${assignTo}. We'll confirm by EOD.`;
+      document.getElementById('designForm').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+
+    } catch(err) {
+      console.error(err);
+      btn.textContent = 'Submit Request →'; btn.disabled = false;
+      let errMsg = document.getElementById('sendError');
+      if (!errMsg) {
+        errMsg = document.createElement('p');
+        errMsg.id = 'sendError';
+        errMsg.style.cssText = 'color:#e03333;font-size:13px;margin-top:12px;text-align:right;';
+        document.querySelector('.submit-row').insertAdjacentElement('afterend', errMsg);
+      }
+      errMsg.textContent = 'Something went wrong. Please try again.';
+    }
+  });
+
+  function resetForm() {
+    document.getElementById('designForm').reset();
+    document.getElementById('otherTypeField').style.display = 'none';
+    const display = document.getElementById('dateDisplay');
+    if (display) { display.textContent = 'Select a date'; display.classList.remove('has-value'); }
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Submit Request →'; btn.disabled = false;
+    document.getElementById('designForm').style.display = 'block';
+    document.getElementById('successScreen').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
