@@ -756,8 +756,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ team: newTeam, description: newDesc })
       });
-      const debug = await res.json();
-      console.log('move-task result:', JSON.stringify(debug, null, 2));
+      const result = await res.json();
+      // Update task id in allTasks if a new task was created
+      if (result.new_task_id) {
+        task.id = result.new_task_id;
+      }
       task.description = newDesc;
       render(); updateStats();
     } catch(e) {
