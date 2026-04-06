@@ -250,7 +250,7 @@
     <div class="admin-pill" id="adminPill"><span style="width:6px;height:6px;border-radius:50%;background:var(--orange);display:inline-block"></span>Admin</div>
     <span class="sync-text" id="syncText">–</span>
     <button class="btn" onclick="loadTasks()">↻ Refresh</button>
-    <a href="https://nfp-design-request-form.netlify.app/" target="_blank" class="btn primary">+ New Request</a>
+    <a href="https://sneha716.github.io/nfpdesignform/" target="_blank" class="btn primary">+ New Request</a>
     <button class="btn" id="adminBtn" onclick="openLogin()">Admin Login</button>
   </div>
 </div>
@@ -751,14 +751,17 @@
       newDesc = oldDesc + `\nASSIGNED TO: ${newTeam}`;
     }
     try {
-      await fetch(`${WORKER}/move-task/${id}`, {
+      const res = await fetch(`${WORKER}/move-task/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ team: newTeam, description: newDesc })
       });
+      const debug = await res.json();
+      console.log('move-task result:', JSON.stringify(debug, null, 2));
       task.description = newDesc;
       render(); updateStats();
     } catch(e) {
+      console.error('move-task error:', e);
       alert('Could not move task. Try again.');
       sel.disabled = false;
     }
